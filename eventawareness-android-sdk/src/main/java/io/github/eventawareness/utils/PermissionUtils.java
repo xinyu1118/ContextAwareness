@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.util.Pair;
 
 import io.github.eventawareness.accessibility.PSAccessibilityService;
+import io.github.eventawareness.core.Contexts;
 import io.github.eventawareness.core.Function;
 import io.github.eventawareness.core.UQI;
 import io.github.eventawareness.notification.PSNotificationListenerService;
@@ -94,5 +94,6 @@ public class PermissionUtils {
         }
     }
     static Map<Integer, Pair<UQI, Function<Void, Void>>> pendingUQIQueries = new HashMap<>();
+
 
 }

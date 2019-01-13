@@ -11,6 +11,20 @@ import io.github.eventawareness.utils.annotations.PSOperatorWrapper;
  */
 @PSOperatorWrapper
 public class Comparators {
+
+    public static final String GTE = "gte";
+    public static final String LTE = "lte";
+    public static final String GT = "gt";
+    public static final String LT = "lt";
+    public static final String EQ = "eq";
+    public static final String NEQ = "neq";
+
+    public static final String IN = "in";
+    public static final String OUT = "out";
+    public static final String CROSSES = "crosses";
+    public static final String UPDATED = "updated";
+
+
     /**
      * Check if the value of a field equals to a given value.
      *

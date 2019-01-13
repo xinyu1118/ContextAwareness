@@ -9,8 +9,10 @@ import io.github.eventawareness.core.purposes.Purpose;
 import io.github.eventawareness.utils.Logging;
 import io.github.eventawareness.utils.PermissionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +26,8 @@ public class UQI {
     private Map<Function<Void, ?>, Purpose> provider2Purpose;
     private Set<Function<Void, Void>> queries;
 
+    private Map<Function<Void, ?>, Purpose> contexts2Purpose;
+
     private Purpose getPurposeOfQuery(Function<Void, Void> query) {
         return this.provider2Purpose.get(query.getHead());
     }
@@ -34,6 +38,12 @@ public class UQI {
     }
     public void setContext(Context context) { this.context = context; }
 
+
+//    private transient Contexts listenedContexts;
+//    public Contexts getListenedContexts() {
+//        return this.listenedContexts;
+//    }
+
     private transient PSException exception;
     public PSException getException() {
         return exception;
@@ -42,7 +52,13 @@ public class UQI {
     public UQI(Context context) {
         this.context = context;
         this.provider2Purpose = new HashMap<>();
+        this.contexts2Purpose = new HashMap<>();
         this.queries = new HashSet<>();
+    }
+
+    public ContextSignal addContexts(Contexts listenedContexts, Purpose purpose) {
+        this.contexts2Purpose.put(listenedContexts, purpose);
+        return new ContextSignal(this, listenedContexts);
     }
 
     /**
@@ -57,94 +73,6 @@ public class UQI {
     public PStream getData(PStreamProvider pStreamProvider, Purpose purpose) {
         this.provider2Purpose.put(pStreamProvider, purpose);
         return new PStream(this, pStreamProvider);
-    }
-
-    /**
-     * Add a listener and handler for the event specified by developers, once it happens
-     * notification will be returned to developers.
-     * @param event the event to be listened to
-     * @param callback callback with intermediate data
-     */
-    public void addEventListener(final EventType event, final EventCallback callback) {
-        event.handle(context, callback);
-
-        // Monitor boolean variable, whose initialization value is false.
-        // If the event happens, its value is set to be true, and developers
-        // could get notification and also obtain intermediate data.
-        if (event.periodicEvent) {
-            event.setBroadListener(new BroadListener() {
-                @Override
-                public void onSuccess() {
-//                    Log.d("Log", "Event satisfies conditions.");
-                    switch (event.getEventType()) {
-//                        case EventType.Audio_Check_Average_Loudness:case EventType.Audio_Check_Average_Loudness_Periodically:case EventType.Audio_Has_Human_Voice:
-//                        case EventType.Audio_Check_Maximum_Loudness:case EventType.Audio_Check_Maximum_Loudness_Periodically:
-                        case EventType.Audio_OneTime_Event:case EventType.Audio_Repeated_Event:
-                            callback.onEvent(callback.getAudioCallbackData());
-                            break;
-                        case EventType.Geolocation_GeoFence:case EventType.Geolocation_Check_Location_In_Places:case EventType.Geolocation_Location_Updated:
-                        case EventType.Geolocation_Check_Speed:case EventType.Geolocation_Arrive_Destination:case EventType.Geolocation_Making_Turns:
-                        case EventType.Geolocation_City_Change:case EventType.Geolocation_Postcode_Change:
-                            callback.onEvent(callback.getGeolocationCallbackData());
-                            break;
-                        case EventType.Call_Check_Unwanted:case EventType.Call_In_List:case EventType.Call_Logs_Checking:case EventType.Call_Coming_In:
-                        case EventType.Contact_Emails_In_Lists:case EventType.Contact_Lists_Updated:
-                            callback.onEvent(callback.getContactCallbackData());
-                            break;
-                        case EventType.Message_Check_Unwanted:case EventType.Message_In_List:case EventType.Message_Coming_In:
-                        case EventType.Message_Lists_Updated:
-                            callback.onEvent(callback.getMessageCallbackData());
-                            break;
-                        case EventType.Image_Content_Updated:case EventType.Image_FileOrFolder_Updated:case EventType.Image_Has_Face:
-                            callback.onEvent(callback.getImageCallbackData());
-                            break;
-                        case EventType.Event_Collections:
-                            callback.onEvent(callback.getAudioCallbackData());
-                            callback.onEvent(callback.getGeolocationCallbackData());
-                            callback.onEvent(callback.getContactCallbackData());
-                            callback.onEvent(callback.getMessageCallbackData());
-                            callback.onEvent(callback.getImageCallbackData());
-                            break;
-                    }
-                }
-                @Override
-                public void onFail(String msg) {
-                    Log.d("Log", "Receive fail response.");
-                }
-            });
-        } else {
-            switch (event.getEventType()) {
-//                case EventType.Audio_Check_Average_Loudness:case EventType.Audio_Check_Average_Loudness_Periodically:case EventType.Audio_Has_Human_Voice:
-//                case EventType.Audio_Check_Maximum_Loudness:case EventType.Audio_Check_Maximum_Loudness_Periodically:
-                case EventType.Audio_OneTime_Event:case EventType.Audio_Repeated_Event:
-                    callback.onEvent(callback.getAudioCallbackData());
-                    break;
-                case EventType.Geolocation_GeoFence:case EventType.Geolocation_Check_Location_In_Places:case EventType.Geolocation_Location_Updated:
-                case EventType.Geolocation_Check_Speed:case EventType.Geolocation_Arrive_Destination:case EventType.Geolocation_Making_Turns:
-                case EventType.Geolocation_City_Change:case EventType.Geolocation_Postcode_Change:
-                    callback.onEvent(callback.getGeolocationCallbackData());
-                    break;
-                case EventType.Call_Check_Unwanted:case EventType.Call_In_List:case EventType.Call_Logs_Checking:case EventType.Call_Coming_In:
-                case EventType.Contact_Emails_In_Lists:case EventType.Contact_Lists_Updated:
-                    callback.onEvent(callback.getContactCallbackData());
-                    break;
-                case EventType.Message_Check_Unwanted:case EventType.Message_In_List:case EventType.Message_Coming_In:
-                case EventType.Message_Lists_Updated:
-                    callback.onEvent(callback.getMessageCallbackData());
-                    break;
-                case EventType.Image_Content_Updated:case EventType.Image_FileOrFolder_Updated:case EventType.Image_Has_Face:
-                    callback.onEvent(callback.getImageCallbackData());
-                    break;
-                case EventType.Event_Collections:
-                    callback.onEvent(callback.getAudioCallbackData());
-                    callback.onEvent(callback.getGeolocationCallbackData());
-                    callback.onEvent(callback.getContactCallbackData());
-                    callback.onEvent(callback.getMessageCallbackData());
-                    callback.onEvent(callback.getImageCallbackData());
-                    break;
-            }
-
-        }
     }
 
     /**

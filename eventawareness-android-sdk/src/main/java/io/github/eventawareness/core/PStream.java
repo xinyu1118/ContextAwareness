@@ -1,5 +1,7 @@
 package io.github.eventawareness.core;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -31,7 +33,9 @@ import io.github.eventawareness.utils.annotations.PSTransformation;
  * Finally, it can be outputted using `asFieldList()`, `count`, etc.
  */
 public class PStream extends Stream {
+
     private Function<Void, PStream> streamProvider;
+    private static List<List> streamProviderField = new ArrayList<>();
 
     @Override
     public Function<Void, PStream> getStreamProvider() {
@@ -254,7 +258,16 @@ public class PStream extends Stream {
      */
     @PSTransformation()
     public <TValue> PStream setField(String fieldToSet, Function<Item, TValue> fieldValueComputer) {
-        return this.map(ItemOperators.setField(fieldToSet, fieldValueComputer));
+        PStream pStream = this.map(ItemOperators.setField(fieldToSet, fieldValueComputer));
+
+        List tempList = new ArrayList();
+        tempList.add(pStream);
+        tempList.add(pStream.getStreamProvider());
+        tempList.add(fieldToSet);
+
+        streamProviderField.add(tempList);
+
+        return pStream;
     }
 
     /**
