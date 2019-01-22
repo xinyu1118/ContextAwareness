@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/EventAwareness.iml" filepath="$PROJECT_DIR$/EventAwareness.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ContextAwareness.iml" filepath="$PROJECT_DIR$/ContextAwareness.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/eventawareness-android-sdk/eventawareness-android-sdk.iml" filepath="$PROJECT_DIR$/eventawareness-android-sdk/eventawareness-android-sdk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contextawareness-android-sdk/contextawareness-android-sdk.iml" filepath="$PROJECT_DIR$/contextawareness-android-sdk/contextawareness-android-sdk.iml" />
     </modules>
   </component>
 </project>
