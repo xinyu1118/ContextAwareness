@@ -25,6 +25,7 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
      * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
+     UQI uqi = new UQI(context);
      try {
          uqi.getData(DeviceState.asUpdates(10000, DeviceState.Masks.WIFI_AP_LIST), Purpose.UTILITY("WiFi connection"))
             .setField("wifi", DeviceOperators.isWifiConnected())
@@ -45,7 +46,7 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
-     
+    UQI uqi = new UQI(context);
     try {
         uqi.getData(Geolocation.asUpdates(10000, Geolocation.LEVEL_EXACT), Purpose.UTILITY("Location updates"))
         .setField("location", GeolocationOperators.getLatLon())
@@ -67,6 +68,7 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.RECORD_AUDIO" />
      */
+     UQI uqi = new UQI(context);
      try {
         uqi.getData(Audio.recordPeriodic(1000, 5000), Purpose.UTILITY("Loudness level"))
             .setField("loudnessLevel", AudioOperators.LoudnessLevel(Operators.GTE, 30.0))
@@ -88,6 +90,7 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
      * <uses-permission android:name="android.permission.RECORD_AUDIO" />
      */
+    UQI uqi = new UQI(context);
     
     HashMap<String, Function> fieldMap1 = new HashMap<>();
     fieldMap1.put("field1", AudioOperators.calcAvgLoudness(Audio.AUDIO_DATA));
@@ -128,7 +131,7 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
     
     dependencies {
-	   implementation 'com.github.xinyu1118:ContextAwarenessSDK:1.0'
+	   implementation 'com.github.xinyu1118:ContextAwareness:1.0.0'
 	}
 
 That's it!
@@ -141,7 +144,7 @@ Specifically, add the following line to `build.gradle` file under tha app module
 
     dependencies {
         ...
-        compile 'com.google.android.gms:play-services-location:16.0.0'
+        implementation 'com.google.android.gms:play-services-location:16.0.0'
         ...
     }
     
