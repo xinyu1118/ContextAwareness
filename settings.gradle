@@ -1,1 +1,1 @@
-include ':app', ':eventawareness-android-sdk'
+include ':app', ':contextawareness-android-sdk'
