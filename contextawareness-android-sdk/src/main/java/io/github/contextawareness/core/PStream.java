@@ -247,7 +247,7 @@ public class PStream extends Stream {
 
     /**
      * Set a field to a new value for each item in the stream.
-     * The value is computed with a function that take the item as input.
+     * The value is computed with a function that takes the item as input.
      * Eg. `setField("x", Comparators.gt("y", 10))` will set a new boolean field "x" to each item,
      * which indicates whether the "y" field is greater than 10.
      *
@@ -267,6 +267,25 @@ public class PStream extends Stream {
 
         streamProviderField.add(tempList);
 
+        return pStream;
+    }
+
+
+    /**
+     * Set a context listener for the stream.
+     * The context is listened to with a function that takes the item as input.
+     * @param contextSignal the boolean value that indicates whether the context happens or not
+     * @param contextListener the context listening function
+     * @return the stream of items with the context signal field set
+     */
+    @PSTransformation
+    public PStream listening(String contextSignal, Function<Item, Boolean> contextListener) {
+        PStream pStream = this.map(ItemOperators.setField(contextSignal, contextListener));
+        List tempList = new ArrayList();
+        tempList.add(pStream);
+        tempList.add(pStream.getStreamProvider());
+        tempList.add(contextSignal);
+        streamProviderField.add(tempList);
         return pStream;
     }
 

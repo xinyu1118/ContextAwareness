@@ -14,6 +14,7 @@ class WifiStatusChecker extends Function<Item, Boolean> {
 
     WifiStatusChecker() {
         this.addRequiredPermissions(Manifest.permission.ACCESS_WIFI_STATE);
+        this.addRequiredPermissions(Manifest.permission.CHANGE_WIFI_STATE);
     }
 
     @Override

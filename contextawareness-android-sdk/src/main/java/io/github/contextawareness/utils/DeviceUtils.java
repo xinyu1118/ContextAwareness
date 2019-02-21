@@ -32,11 +32,17 @@ public class DeviceUtils {
      */
     @RequiresPermission(value = Manifest.permission.ACCESS_WIFI_STATE)
     public static boolean isWifiConnected(Context context) {
+//        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//        if (wifiManager == null || !wifiManager.isWifiEnabled()) return false;
+//        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+//        if (wifiInfo == null || wifiInfo.getNetworkId() == -1) return false;
+//        return wifiInfo.getSupplicantState() == SupplicantState.ASSOCIATED;
+
         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (wifiManager == null || !wifiManager.isWifiEnabled()) return false;
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        if (wifiInfo == null || wifiInfo.getNetworkId() == -1) return false;
-        return wifiInfo.getSupplicantState() == SupplicantState.ASSOCIATED;
+        if (wifiManager != null )
+            return wifiManager.isWifiEnabled();
+        else
+            return false;
     }
 
     /**

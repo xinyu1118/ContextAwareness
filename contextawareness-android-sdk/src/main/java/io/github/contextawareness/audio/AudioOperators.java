@@ -36,6 +36,18 @@ public class AudioOperators {
     }
 
     /**
+     * Compare the average loudness with a threshold.
+     *
+     * @param operators the comparison operator, e.g. Operators.GTE, Operators.LT.
+     * @param threshold the loudness threshold in dB.
+     * @return the function.
+     */
+    public static Function<Item, Boolean> loudnessLevel(String operators, Double threshold) {
+        String audioDataField = Audio.AUDIO_DATA;
+        return new AudioLoudnessLevel(audioDataField, operators, threshold);
+    }
+
+    /**
      * Developers could specify their own functions here to calculate a customized field value
      * of the audio specified by an AudioData field.
      *
