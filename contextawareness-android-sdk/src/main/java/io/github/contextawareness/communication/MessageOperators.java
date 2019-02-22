@@ -1,6 +1,8 @@
 package io.github.contextawareness.communication;
 
 
+import java.util.List;
+
 import io.github.contextawareness.core.Function;
 import io.github.contextawareness.core.Item;
 import io.github.contextawareness.utils.annotations.PSOperatorWrapper;
@@ -12,13 +14,25 @@ import io.github.contextawareness.utils.annotations.PSOperatorWrapper;
 public class MessageOperators {
 
     /**
-     * Get the phone number from incoming messages.
+     * Message sender from a phone number.
      *
+     * @param phoneNumber the phone number
      * @return the function
      */
-    public static Function<Item, String> getMessagePhones() {
+    public static Function<Item, Boolean> SenderFrom(String phoneNumber) {
         String contactField = Message.CONTACT;
-        return new MessagePhoneGetter(contactField);
+        return new MessageSenderFrom(contactField, phoneNumber);
+    }
+
+    /**
+     * Message sender in a phone list.
+     *
+     * @param phoneList the phone list
+     * @return the function
+     */
+    public static Function<Item, Boolean> SenderInList(List<String> phoneList) {
+        String contactField = Message.CONTACT;
+        return new MessageSenderInList(contactField, phoneList);
     }
 
     /**

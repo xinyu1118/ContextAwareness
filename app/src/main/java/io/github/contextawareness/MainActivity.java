@@ -14,21 +14,35 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Globals.LocationConfig.useGoogleService = false;
 
-
-//        PersonalDataExamples personalDataExamples = new PersonalDataExamples(this);
+        // Examples of personal data
+        PersonalDataExamples personalDataExamples = new PersonalDataExamples(this);
 //        personalDataExamples.LoudnessLevel();
 //        personalDataExamples.LocationUpdates();
+//        personalDataExamples.LocationInCircle();
+//        personalDataExamples.LocationInSquare();
+//        personalDataExamples.SpeedMonitor();
+//        personalDataExamples.DestArrival();
+//        personalDataExamples.PostcodeUpdates();
+//        personalDataExamples.CityUpdates();
+//        personalDataExamples.DirectionUpdates();
+//        personalDataExamples.CallerFrom();
+//        personalDataExamples.CallerInList();
+//        personalDataExamples.EmailsChecker();
+//        personalDataExamples.MessageSenderFrom();
+//        personalDataExamples.MessageSenderInList();
+//        personalDataExamples.ImageHasFace();
 
-
+        // Examples of phone state
 //        PhoneStateExamples phoneStateExamples = new PhoneStateExamples(this);
 //        phoneStateExamples.WiFiConnection();
 
+        // Examples of user activity
 //        UserActivityExamples userActivityExamples = new UserActivityExamples(this);
 //        userActivityExamples.IsStill();
 
+        // Example of simultaneous events
 //        SimultaneousExamples simultaneousExamples = new SimultaneousExamples(this);
 //        simultaneousExamples.LoudnessOnStill();
-
 
 
     }

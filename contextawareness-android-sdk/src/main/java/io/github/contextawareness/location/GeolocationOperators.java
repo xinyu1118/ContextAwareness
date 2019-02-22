@@ -20,10 +20,8 @@ public class GeolocationOperators {
 //        return new LocationAtHomePredicate(latLonField);
 //    }
 
-    // The LatLon destination parameter will be assigned value when
-    // the API begins to deal with geolocation distance calculation event,
-    // its initial value is given randomly.
-    public static LatLon destination = new LatLon(20.0, -40.0);
+
+//    public static LatLon destination = new LatLon(20.0, -40.0);
 
     /**
      * Check if the coordinates specified by a LatLon field is a location in an given circular region.
@@ -88,22 +86,25 @@ public class GeolocationOperators {
     }
 
     /**
-     * Get the average speed in m/s.
+     * Monitor speed with a threshold.
      *
+     * @param operators Comparison operators, e.g. Operators.GTE, Operators.LT
+     * @param threshold the speed threshold in m/s
      * @return the function
      */
-    public static Function<Item, Float> calcSpeed() {
+    public static Function<Item, Boolean> SpeedMonitor(String operators, Float threshold) {
         String speedField = Geolocation.SPEED;
-        return new LocationSpeedCalculator(speedField);
+        return new LocationSpeedCalculator(speedField, operators, threshold);
     }
 
     /**
-     * Calculate the distance between current location and the destination in meters.
+     * Arrive destination.
      *
-     * @param latLonField the coordinates field
+     * @param latLonField the LatLon field
+     * @param destination the LatLon destination
      * @return the function
      */
-    public static Function<Item, Double> distanceTo(String latLonField) {
+    public static Function<Item, Boolean> DestArrival(String latLonField, LatLon destination) {
         return new LocationDestinationCalculator(latLonField, destination);
     }
 
