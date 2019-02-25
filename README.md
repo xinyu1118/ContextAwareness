@@ -1,4 +1,4 @@
-﻿# ContextAwareness
+﻿# ContextAwareness (PCAF)
 
 ---
 
@@ -9,12 +9,14 @@ ContextAwareness is a privacy-preserving context awareness Android library. It c
         .setField("fine-grained_data", FieldCalculator)
         .Callback();
 
-In ContextAwareness, a context awareness query statement is made up of servel functions. Here Provider gets raw data from data sources including sensors, databases, systems etc. and converts it to a standard-format stream. Over the stream ContextAwarenessFunction generates and handles a context, and the result of its occurrence is set to a boolean field which could be named by developers (e.g. context-signal). If developers wanna to get context related fine-grained personal data via a series of transformations, they could use FieldCalculator to calculate various fields. Finally, the context signal and related fine-grained data are collected to output with Callback function.
+
+In ContextAwareness, a context awareness query statement is made up of servel functions. Here Provider gets raw data from data sources including sensors, databases, systems etc. and converts it to a standard-format stream. ContextAwareness is built on the basis of an open-source library PrivacyStreams (https://privacystreams.github.io) to assit in personal data processing. Over the stream ContextAwarenessFunction generates and handles a context, and the result of its occurrence is set to a boolean field which could be named by developers (e.g. context-signal). If developers wanna to get context related fine-grained personal data via a series of transformations, they could use FieldCalculator to calculate various fields. Finally, the context signal and related fine-grained data are collected to output with Callback function.
 
 In ContextAwareness, all developers should do is to find out proper functions to form a context awareness query statement. If the context happens, callback data will be returned to applications for subsequent procedures.
 
 **Quick examples**
 ---
+Here are some quick examples, developers could look up the example files (e.g. PersonalDataExamples.java, PhoneStateExamples.java) in the project for more. 
 
 **Monitor WiFi connection state.**
 
@@ -25,10 +27,10 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
      * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
-     UQI uqi = new UQI(context);
+     UQI uqi = new UQI(context); // UQI instantiation is omitted below
      try {
          uqi.getData(DeviceState.asUpdates(10000, DeviceState.Masks.WIFI_AP_LIST), Purpose.UTILITY("WiFi connection"))
-            .setField("wifi", DeviceOperators.isWifiConnected())
+            .listening("wifi", DeviceOperators.isWifiConnected())
             .forEach(new Callback<Item>() {
                 @Override
                 protected void onInput(Item input) {
@@ -46,9 +48,8 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
-    UQI uqi = new UQI(context);
     try {
-        uqi.getData(Geolocation.asUpdates(10000, Geolocation.LEVEL_EXACT), Purpose.UTILITY("Location updates"))
+        UQI.getData(Geolocation.asUpdates(10000, Geolocation.LEVEL_EXACT), Purpose.UTILITY("Location updates"))
         .setField("location", GeolocationOperators.getLatLon())
         .forEach(new Callback<Item>() {
             @Override
@@ -68,19 +69,16 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.RECORD_AUDIO" />
      */
-     UQI uqi = new UQI(context);
-     try {
-        uqi.getData(Audio.recordPeriodic(1000, 5000), Purpose.UTILITY("Loudness level"))
-            .setField("loudnessLevel", AudioOperators.LoudnessLevel(Operators.GTE, 30.0))
-            .forEach(new Callback<Item>() {
-                @Override
-                protected void onInput(Item input) {
-                    Log.d("Log", input.getAsBoolean("loudnessLevel").toString());
-                }
-            });
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+     UQI.getData(Audio.recordPeriodic(1000, 3000), Purpose.UTILITY("Get loudness"))
+         .listening("contextSignal", AudioOperators.loudnessLevel(Operators.GTE, 30.0))
+        .setField("loudness", AudioOperators.calcAvgLoudness(Audio.AUDIO_DATA))
+        .forEach(new Callback<Item>() {
+            @Override
+            protected void onInput(Item input) {
+                if (input.getAsBoolean("contextSignal"))
+                    Log.d("Log", "Loudness: "+String.valueOf(input.getAsDouble("loudness")));
+            }
+        });
     
 **Simultaneous events.**      
     
@@ -90,7 +88,6 @@ In ContextAwareness, all developers should do is to find out proper functions to
      * <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
      * <uses-permission android:name="android.permission.RECORD_AUDIO" />
      */
-    UQI uqi = new UQI(context);
     
     HashMap<String, Function> fieldMap1 = new HashMap<>();
     fieldMap1.put("field1", AudioOperators.calcAvgLoudness(Audio.AUDIO_DATA));
@@ -104,7 +101,7 @@ In ContextAwareness, all developers should do is to find out proper functions to
     factors.add(factor1);
     factors.add(factor2);
     
-    uqi.getData(Environment.asAnd(factors), Purpose.UTILITY("Awareness"))
+    UQI.getData(Environment.asAnd(factors), Purpose.UTILITY("Awareness"))
         .forEach(new Callback<Item>() {
             @Override
             protected void onInput(Item input) {
