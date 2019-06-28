@@ -1,6 +1,5 @@
 package io.github.contextawareness.audio;
 
-
 import android.Manifest;
 
 import io.github.contextawareness.core.exceptions.PSException;

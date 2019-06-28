@@ -19,7 +19,6 @@ public abstract class Function<Tin, Tout> {
     private transient List<Object> parameters;
 
     protected transient volatile boolean isCancelled;
-    protected transient volatile boolean isContextsAwared;
 
     public final Set<String> getRequiredPermissions() {
         return this.requiredPermissions;

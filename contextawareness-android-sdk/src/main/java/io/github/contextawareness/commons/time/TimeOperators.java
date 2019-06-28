@@ -50,4 +50,8 @@ public class TimeOperators {
     public static Function<Item, String> formatTime(String timestampField, String timeFormat) {
         return new TimeToStringConverter(timestampField, timeFormat);
     }
+
+    public static Function<Item, Boolean> isHoliday(String date) {
+        return new HolidayChecker(date);
+    }
 }

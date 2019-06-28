@@ -2,17 +2,14 @@ package io.github.contextawareness.core;
 
 
 import android.content.Context;
-import android.util.Log;
 
 import io.github.contextawareness.core.exceptions.PSException;
 import io.github.contextawareness.core.purposes.Purpose;
 import io.github.contextawareness.utils.Logging;
 import io.github.contextawareness.utils.PermissionUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,12 +21,15 @@ import java.util.Set;
 public class UQI {
 
     private Map<Function<Void, ?>, Purpose> provider2Purpose;
+    private Map<Contexts, Purpose> contexts2Purpose;
     private Set<Function<Void, Void>> queries;
-
-    private Map<Function<Void, ?>, Purpose> contexts2Purpose;
 
     private Purpose getPurposeOfQuery(Function<Void, Void> query) {
         return this.provider2Purpose.get(query.getHead());
+    }
+
+    private Purpose getPurposeOfContexts(Contexts contexts) {
+        return this.contexts2Purpose.get(contexts);
     }
 
     private transient Context context;
@@ -37,12 +37,6 @@ public class UQI {
         return this.context;
     }
     public void setContext(Context context) { this.context = context; }
-
-
-//    private transient Contexts listenedContexts;
-//    public Contexts getListenedContexts() {
-//        return this.listenedContexts;
-//    }
 
     private transient PSException exception;
     public PSException getException() {
@@ -56,9 +50,9 @@ public class UQI {
         this.queries = new HashSet<>();
     }
 
-    public ContextSignal addContexts(Contexts listenedContexts, Purpose purpose) {
-        this.contexts2Purpose.put(listenedContexts, purpose);
-        return new ContextSignal(this, listenedContexts);
+    public PStream listening(Contexts contexts, Purpose purpose) {
+        this.contexts2Purpose.put(contexts, purpose);
+        return contexts.contextJudgment(this);
     }
 
     /**
@@ -79,7 +73,7 @@ public class UQI {
      * Stop all query in this UQI.
      */
     public void stopAll() {
-        Logging.debug("Trying to stop all contextawareness Queries.");
+        Logging.debug("Trying to stop all context awareness queries.");
 
         this.exception = PSException.INTERRUPTED("Stopped by app.");
         for (Function<Void, Void> query : queries) {

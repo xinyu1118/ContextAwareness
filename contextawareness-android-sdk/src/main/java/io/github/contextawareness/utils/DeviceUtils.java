@@ -1,6 +1,8 @@
 package io.github.contextawareness.utils;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -43,6 +45,12 @@ public class DeviceUtils {
             return wifiManager.isWifiEnabled();
         else
             return false;
+    }
+
+    public static boolean isBluetoothConnected() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
+                && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED;
     }
 
     /**
@@ -121,6 +129,11 @@ public class DeviceUtils {
         } else {
             return pm.isScreenOn();
         }
+    }
+
+    public static boolean isScreenOn(Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        return pm.isScreenOn();
     }
 
 }

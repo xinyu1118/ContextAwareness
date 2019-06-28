@@ -20,9 +20,6 @@ public class GeolocationOperators {
 //        return new LocationAtHomePredicate(latLonField);
 //    }
 
-
-//    public static LatLon destination = new LatLon(20.0, -40.0);
-
     /**
      * Check if the coordinates specified by a LatLon field is a location in an given circular region.
      *
@@ -80,9 +77,14 @@ public class GeolocationOperators {
      *
      * @return the function
      */
-    public static Function<Item, LatLon> getLatLon() {
+//    public static Function<Item, LatLon> getLatLon() {
+//        String latLonField = Geolocation.LAT_LON;
+//        return new LocationCoordinateGetter(latLonField);
+//    }
+
+    public static Function<Item, Boolean> updates() {
         String latLonField = Geolocation.LAT_LON;
-        return new LocationCoordinateGetter(latLonField);
+        return new LocationStatusChecker(latLonField);
     }
 
     /**
@@ -104,18 +106,8 @@ public class GeolocationOperators {
      * @param destination the LatLon destination
      * @return the function
      */
-    public static Function<Item, Boolean> DestArrival(String latLonField, LatLon destination) {
+    public static Function<Item, Boolean> DestArrived(String latLonField, LatLon destination) {
         return new LocationDestinationCalculator(latLonField, destination);
-    }
-
-    /**
-     * Get the current direction using bearing field.
-     *
-     * @return the function
-     */
-    public static Function<Item, String> getDirection() {
-        String bearingField = Geolocation.BEARING;
-        return new LocationDirectionGetter(bearingField);
     }
 
     /**
@@ -124,9 +116,9 @@ public class GeolocationOperators {
      * @param latLonField the coordinates field
      * @return the function
      */
-    public static Function<Item, String> getPostcode(String latLonField) {
-        return new LocationPostcodeGetter(latLonField);
-    }
+//    public static Function<Item, String> getPostcode(String latLonField) {
+//        return new LocationPostcodeGetter(latLonField);
+//    }
 
     /**
      * Get the local city based on latitude and longitude.
@@ -134,7 +126,7 @@ public class GeolocationOperators {
      * @param latLonField the coordinates field
      * @return the function
      */
-    public static Function<Item, String> getCity(String latLonField) {
-        return new LocationCityGetter(latLonField);
-    }
+//    public static Function<Item, String> getCity(String latLonField) {
+//        return new LocationCityGetter(latLonField);
+//    }
 }

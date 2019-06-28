@@ -1,9 +1,5 @@
 package io.github.contextawareness.core;
 
-
-/**
- * The public operators used to generate a context.
- */
 public class Operators {
 
     public static final String GTE = "gte";

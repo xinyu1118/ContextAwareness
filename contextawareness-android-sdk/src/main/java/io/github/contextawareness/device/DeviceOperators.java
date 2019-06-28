@@ -27,4 +27,25 @@ public class DeviceOperators {
     public static Function<Item, Boolean> isWifiConnected() {
         return new WifiStatusChecker();
     }
+
+    public static Function<Item, Boolean> isLowBattery(float threshold) {
+        return new BatteryChecker(threshold);
+    }
+
+    public static Function<Item, Boolean> isLowBattery(float lowerBound, float upperBound) {
+        return new BatteryChecker(lowerBound, upperBound);
+    }
+
+    public static Function<Item, Boolean> isBluetoothConnected() {
+        return new BluetoothStatusChecker();
+    }
+
+    public static Function<Item, Boolean> isScreenOn() {
+        return new ScreenStatusChecker();
+    }
+
+    public static Function<Item, Boolean> isDeviceInteractive() {
+        return new DeviceActiveChecker();
+    }
+
 }

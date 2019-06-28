@@ -35,7 +35,6 @@ import io.github.contextawareness.utils.annotations.PSTransformation;
 public class PStream extends Stream {
 
     private Function<Void, PStream> streamProvider;
-    private static List<List> streamProviderField = new ArrayList<>();
 
     @Override
     public Function<Void, PStream> getStreamProvider() {
@@ -93,21 +92,6 @@ public class PStream extends Stream {
     @PSTransformation()
     public <TValue> PStream filter(String fieldName, TValue fieldValue) {
         return this.filter(Comparators.eq(fieldName, fieldValue));
-    }
-
-    /**
-     * Filter the stream by checking whether a field is in a list.
-     * Specifically, keep the items in which the field is in a given list.
-     * Eg. 'filter("x", lists)' will keep the items whose x field is in 'lists'.
-     *
-     * @param fieldName the name of field to check
-     * @param fieldValue the value of a list to compare with the field
-     * @param <TValue> the type of value
-     * @return The filtered stream.
-     */
-    @PSTransformation()
-    public <TValue> PStream filterList(String fieldName, List<TValue> fieldValue) {
-        return this.filter(Comparators.eqList(fieldName, fieldValue));
     }
 
     /**
@@ -259,33 +243,6 @@ public class PStream extends Stream {
     @PSTransformation()
     public <TValue> PStream setField(String fieldToSet, Function<Item, TValue> fieldValueComputer) {
         PStream pStream = this.map(ItemOperators.setField(fieldToSet, fieldValueComputer));
-
-        List tempList = new ArrayList();
-        tempList.add(pStream);
-        tempList.add(pStream.getStreamProvider());
-        tempList.add(fieldToSet);
-
-        streamProviderField.add(tempList);
-
-        return pStream;
-    }
-
-
-    /**
-     * Set a context listener for the stream.
-     * The context is listened to with a function that takes the item as input.
-     * @param contextSignal the boolean value that indicates whether the context happens or not
-     * @param contextListener the context listening function
-     * @return the stream of items with the context signal field set
-     */
-    @PSTransformation
-    public PStream listening(String contextSignal, Function<Item, Boolean> contextListener) {
-        PStream pStream = this.map(ItemOperators.setField(contextSignal, contextListener));
-        List tempList = new ArrayList();
-        tempList.add(pStream);
-        tempList.add(pStream.getStreamProvider());
-        tempList.add(contextSignal);
-        streamProviderField.add(tempList);
         return pStream;
     }
 
@@ -304,23 +261,6 @@ public class PStream extends Stream {
     @PSTransformation()
     public <TValue> PStream setGroupField(String fieldToSet, Function<List<Item>, TValue> fieldValueComputer) {
         return this.map(ItemOperators.setGroupField(fieldToSet, fieldValueComputer));
-    }
-
-    /**
-     * Set the value of a new field with a value generator function.
-     * The value generator function is independent from current item, which does not need a input (input type is Void).
-     * The value generator will be evaluated on demand at runtime.
-     * Eg. `setIndependentField("time", TimeOperators.getCurrentTime())` will set the field "time" to a timestamp in each item;
-     * `setIndependentField("wifiStatus", DeviceOperators.isWifiConnected())` will set the field "wifiStatus" to a boolean indicating whether wifi is connected in each item.
-     *
-     * @param fieldToSet the name of the field to set.
-     * @param valueGenerator the function to compute the field value.
-     * @param <TValue> the type of the new field value.
-     * @return the stream of items with the new field set
-     */
-    @PSTransformation()
-    public <TValue> PStream setIndependentField(String fieldToSet, Function<Void, TValue> valueGenerator) {
-        return this.map(ItemOperators.setIndependentField(fieldToSet, valueGenerator));
     }
 
     // *****************************
@@ -488,6 +428,12 @@ public class PStream extends Stream {
         return this.getFieldAt(fieldName, 0);
     }
 
+    @PSAction(blocking = true)
+    public Boolean getCallback() throws PSException {
+        String fieldName = "context_signal";
+        return this.getFieldAt(fieldName, 0);
+    }
+
     /**
      * Pick the N-th item in the stream. N is the index.
      *
@@ -607,6 +553,12 @@ public class PStream extends Stream {
      */
     @PSAction(blocking = false)
     public <TValue> void forEach(String fieldToSelect, Function<TValue, Void> callback) {
+        this.output(Callbacks.forEachField(fieldToSelect, callback));
+    }
+
+    @PSAction(blocking = false)
+    public <TValue> void setCallback(Function<TValue, Void> callback) {
+        String fieldToSelect = "context_signal";
         this.output(Callbacks.forEachField(fieldToSelect, callback));
     }
 

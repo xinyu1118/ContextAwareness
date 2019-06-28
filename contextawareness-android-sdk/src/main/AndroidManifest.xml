@@ -5,14 +5,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application>
-        <activity android:name="io.github.contextawareness.core.PhoneState.BeaconMonitoringActivity"
-            />
 
         <activity
             android:name="io.github.contextawareness.utils.PSPermissionActivity"
@@ -56,10 +55,10 @@
         </service>
 
         <service
-            android:name="io.github.contextawareness.core.UserActivity.DetectedActivitiesIntentService"
+            android:name="io.github.contextawareness.activity.DetectedActivitiesIntentService"
             android:exported="false" />
 
-        <service android:name="io.github.contextawareness.core.UserActivity.BackgroundDetectedActivitiesService"></service>
+        <service android:name="io.github.contextawareness.activity.BackgroundDetectedActivitiesService"></service>
 
         <provider
             android:name="io.github.contextawareness.utils.PSFileProvider"

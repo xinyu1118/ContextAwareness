@@ -1,9 +1,5 @@
 package io.github.contextawareness.core;
 
-import io.github.contextawareness.core.EventDrivenFunction;
-import io.github.contextawareness.core.Item;
-import io.github.contextawareness.core.PStream;
-import io.github.contextawareness.core.Stream;
 import io.github.contextawareness.utils.Logging;
 
 /**
