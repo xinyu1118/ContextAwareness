@@ -1,113 +1,85 @@
-﻿# ContextAwareness (PCAF)
+﻿# PCAF
 
 ---
 
-ContextAwareness is a privacy-preserving context awareness Android library. It could help developers ease the programming efforts of sensing various contexts by offering transparency in detailed processing steps. Meanwhile only context related fine-grained data is returned to applications, enabling the great isolation of developers and personal data and reducing end users' privacy concerns. Until now ContextAwareness supports phone state, personal data, public knowledge and user activity four categories of contexts. Logical operations (i.e. and, or, not) are supported among contexts to build complicated situations. All of them could be monitored and handled in a uniform query interface (UQI) as shown below.
+Nowadays mobile applications can provide customized services by inferring users' contexts with a wide range of personal data, such as GPS, microphones, accelerometers etc. There are two challenges for context listening and handling:
 
-    UQI.getData(Provider, Purpose)
-        .listening("context-signal", ContextAwarenessFunction)
-        .setField("fine-grained_data", FieldCalculator)
-        .Callback();
+- [ ] It is **difficult and error-prone for app developers** to handle a variety of contexts easily and efficiently with existing native system APIs.
+- [ ] End users are unwilling to expose all their raw data for context inferrence to developers as they hardly know what developers do with their data, which can lead to **privacy concerns**. 
+
+To address the above challenges, we propose a privacy-preserving mobile app context-aware API named PCAF. It can provide programming support for context-aware app development while limiting the access amount of personal data as much as possible. Raw data is encapsulated and only a set of coarse-grained data is provided for context inference, rather than raw data at any granularity at any time. At the same time PCAF frees app developers from a large amount of processing details. 
+
+The core idea of PCAF is to centralize context listening and handling in a unified query interface (UQI) as follows. All developers should do is to find out proper coarse-grained data and built-in functions to specify a query statement:
+
+    UQI.listening(Contexts, Purpose)
+        .setCallback(CallbackFunction)
+
+Here *Contexts* is used to specify a context that needs to be listened to and handled. App developers should first follow our personal data tree until arriving at the required coarse-grained data in a context. Then they should find out a proper built-in function related to the coarse-grained data to form a context. The personal data tree is refined layer by layer according to the data granularity. It is shown in the following figure, and we only show two-tier structure due to length limitation. 
 
 
-In ContextAwareness, a context awareness query statement is made up of servel functions. Here Provider gets raw data from data sources including sensors, databases, systems etc. and converts it to a standard-format stream. ContextAwareness is built on the basis of an open-source library PrivacyStreams (https://privacystreams.github.io) to assit in personal data processing. Over the stream ContextAwarenessFunction generates and handles a context, and the result of its occurrence is set to a boolean field which could be named by developers (e.g. context-signal). If developers wanna to get context related fine-grained personal data via a series of transformations, they could use FieldCalculator to calculate various fields. Finally, the context signal and related fine-grained data are collected to output with Callback function.
 
-In ContextAwareness, all developers should do is to find out proper functions to form a context awareness query statement. If the context happens, callback data will be returned to applications for subsequent procedures.
+For example, if an app developer wants to check whether 'the battery level is lower than 15%', then s/he should find the coarse-grained data 'battery level' following the path 'Device->Battery', and then use the built-in function 'isLowBattery(15f)' to implement the context generation. A set of enumeration values of context occurrence states are returned with *setCallback*. The most typical callback is a Boolean value indicating whether the context happens or not. In addition, *Purpose* is provided for developers to explain why they monitor a context for end users and auditors. 
+
+Next we will give some quick examples. 
 
 **Quick examples**
 ---
-Here are some quick examples, developers could look up the example files (e.g. PersonalDataExamples.java, PhoneStateExamples.java) in the project for more. 
 
-**Monitor WiFi connection state.**
+**Check whether the WiFi is connected.**
 
     /**
-     * Check WiFi connection every 10 seconds and return device related connection information. 
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-     * <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-     * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
-     UQI uqi = new UQI(context); // UQI instantiation is omitted below
-     try {
-         uqi.getData(DeviceState.asUpdates(10000, DeviceState.Masks.WIFI_AP_LIST), Purpose.UTILITY("WiFi connection"))
-            .listening("wifi", DeviceOperators.isWifiConnected())
-            .forEach(new Callback<Item>() {
-                @Override
-                protected void onInput(Item input) {
-                    Log.d("Log", input.getAsBoolean("wifi").toString());
-                }
-            });
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+     UQI uqi = new UQI (context); // omitted below
+     uqi.listening(Device.WiFi.isWiFiConnected(), Purpose.UTILITY("check wifi connection status"))
+        .setCallback(new Callback<Boolean>() {
+            @Override
+            protected void onInput(Boolean input) {
+                Log.d("Log", String.valueOf(input));
+            }
+        });
+        
+**Check whether the battery is lower than 30%.**
+
+
+     UQI.listening(Device.Battery.isLowBattery(30f), Purpose.TEST("test"))
+        .setCallback(new Callback<Boolean>() {
+            @Override
+            protected void onInput(Boolean input) {
+                Log.d("Log", String.valueOf(input));
+            }
+        });
         
  **Monitor location updates.**   
 
     /**
-     * Check location updates every 10s and return the precise latitude and longitude when the context happens. 
      * Make sure the following line is added to AndroidManifest.xml
      * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
      */
-    try {
-        UQI.getData(Geolocation.asUpdates(10000, Geolocation.LEVEL_EXACT), Purpose.UTILITY("Location updates"))
-        .setField("location", GeolocationOperators.getLatLon())
-        .forEach(new Callback<Item>() {
+     UQI.listening(Environment.Location.LocationUpdates(), Purpose.UTILITY("monitor location updates"))
+        .setCallback(new Callback<Boolean>() {
             @Override
-            protected void onInput(Item input) {
-                LatLon latLon = input.getValueByField("location");
-                Log.d("Log", "Lat: "+latLon.getLatitude()+" Long: "+latLon.getLongitude());
+            protected void onInput(Boolean input) {
+                Log.d("Log", String.valueOf(input));
             }
         });
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
     
-**Monitor the ambient loudness level.**  
+**Listen to phone calls from Lucy.**  
 
     /**
-     * Compare the average loudness with a threshold.
      * Make sure the following line is added to AndroidManifest.xml
-     * <uses-permission android:name="android.permission.RECORD_AUDIO" />
+     * <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+     * uses-permission android:name="android.permission.READ_CONTACTS" />
      */
-     UQI.getData(Audio.recordPeriodic(1000, 3000), Purpose.UTILITY("Get loudness"))
-         .listening("contextSignal", AudioOperators.loudnessLevel(Operators.GTE, 30.0))
-        .setField("loudness", AudioOperators.calcAvgLoudness(Audio.AUDIO_DATA))
-        .forEach(new Callback<Item>() {
+    UQI.listening(Activity.CallFrom("Lucy"), Purpose.UTILITY("caller from"))
+        .setCallback(new Callback<Boolean>() {
             @Override
-            protected void onInput(Item input) {
-                if (input.getAsBoolean("contextSignal"))
-                    Log.d("Log", "Loudness: "+String.valueOf(input.getAsDouble("loudness")));
+            protected void onInput(Boolean input) {
+                Log.d("Log", String.valueOf(input));
             }
         });
     
-**Simultaneous events.**      
-    
-    /**
-     * Return the average loudness in dB when the user is still.
-     * Make sure the following line is added to AndroidManifest.xml
-     * <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-     * <uses-permission android:name="android.permission.RECORD_AUDIO" />
-     */
-    
-    HashMap<String, Function> fieldMap1 = new HashMap<>();
-    fieldMap1.put("field1", AudioOperators.calcAvgLoudness(Audio.AUDIO_DATA));
-    EnvironmentFactor factor1 = new EnvironmentFactor(Audio.recordPeriodic(1000, 1000), fieldMap1);
-    
-    HashMap<String, Function> fieldMap2 = new HashMap<>();
-    fieldMap2.put("field2", UserActivityInfoOperators.isStill());
-    EnvironmentFactor factor2 = new EnvironmentFactor(UserActivityInfo.asUpdates(uqi, DetectedActivity.STILL, 1000), fieldMap2);
-    
-    LinkedList<EnvironmentFactor> factors = new LinkedList<>();
-    factors.add(factor1);
-    factors.add(factor2);
-    
-    UQI.getData(Environment.asAnd(factors), Purpose.UTILITY("Awareness"))
-        .forEach(new Callback<Item>() {
-            @Override
-            protected void onInput(Item input) {
-                Log.d("Log", input.getAsDouble("field1").toString());
-            }
-        });
 
     
 **Installation**
@@ -115,7 +87,7 @@ Here are some quick examples, developers could look up the example files (e.g. P
 
 **Option 1. Using Gradle (recommended for the most users)**
 
-Step 1. Add the JitPack repository to your build file
+Step 1. Add the JitPack repository to your build file. 
 Add it in your root build.gradle at the end of repositories:
 
 	allprojects {
@@ -170,12 +142,17 @@ In Android Studio, the installation involves the following steps:
 
 **Other Information**
 ---
-ContextAwareness is initially developed by Xinyu Yang, under the advisory of Jason Hong and Yuvraj Agarwal, depending on CHIMPS Lab at Carnegie Mellon University and National Engineering Lab for Mobile Network Technologies at Beijing University of Posts and Telecommunications.
+PCAF is initially developed by Xinyu Yang, under the advisory of Jason Hong and Yuvraj Agarwal, depending on CHIMPS Lab at Carnegie Mellon University and National Engineering Lab for Mobile Network Technologies at Beijing University of Posts and Telecommunications.
 
 Contact Author (yangxycl@163.com)
 
 
   [1]: https://docs.google.com/document/d/13eyGI1-gqV4eXm467RjF6H9XuQYtx-tYG1vwPmzaT04/edit#heading=h.8bthu2z2dnv8
+
+
+
+
+
 
 
 
